@@ -1,0 +1,8 @@
+Django
+django-allauth
+gunicorn
+mysqlclient
+Pillow
+python-decouple
+stripe
+uuid

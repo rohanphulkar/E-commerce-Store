@@ -1,0 +1,47 @@
+{% extends '../layout/base.html' %} {% block content %}
+<!-- Card Blog -->
+<div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+  <!-- Title -->
+  <div class="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
+    <h2 class="text-2xl font-bold md:text-4xl md:leading-tight">Shop</h2>
+    <p class="mt-1 text-gray-600">
+      See how game-changing companies are making the most of every engagement
+      with Preline.
+    </p>
+  </div>
+  <!-- End Title -->
+
+  <!-- Grid -->
+  <div
+    class="w-fit mx-auto grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 justify-items-center justify-center gap-y-20 gap-x-14 mt-10 mb-5"
+  >
+    <!-- Card -->
+    {% for product in products %}
+    <div
+      class="w-72 bg-white border rounded-xl duration-500 hover:scale-105 hover:shadow-xl"
+    >
+      <a href="{% url 'product' product.slug %}">
+        <img
+          src="{{product.image.url}}"
+          alt="Product"
+          class="h-80 w-72 object-cover rounded-t-xl"
+        />
+        <div class="px-4 py-3 w-72">
+          <p class="text-lg font-bold text-black truncate block capitalize">
+            {{product.name}}
+          </p>
+          <div class="flex items-center">
+            <p class="text-lg font-semibold text-black cursor-auto my-3">
+              &#8377;{{product.price}}
+            </p>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+    <!-- Card End -->
+  </div>
+  <!-- End Grid -->
+</div>
+<!-- End Card Blog -->
+{% endblock content %}

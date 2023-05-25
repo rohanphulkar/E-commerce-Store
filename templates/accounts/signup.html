@@ -1,0 +1,167 @@
+{% extends '../layout/base.html' %}{% load socialaccount %} {% block content %}
+<div class="h-full max-w-7xl mx-auto w-full">
+  <div class="flex flex-col items-center justify-center py-12">
+    {% if messages %} {% for message in messages %} {% if message.tags %}
+    <div
+      class="border {{message.tags}} text-sm font-medium rounded-md p-4 w-full md:w-1/2 md:mx-auto"
+      role="alert"
+    >
+      {{message}}
+    </div>
+    {% endif %} {% endfor %} {% endif %}
+    <div class="lg:w-1/3 md:w-1/2 w-full p-10">
+      <p
+        tabindex="0"
+        class="focus:outline-none text-2xl font-extrabold leading-6 text-gray-800"
+      >
+        Create a new account
+      </p>
+      <p
+        tabindex="0"
+        class="focus:outline-none text-sm mt-4 font-medium leading-none text-gray-500"
+      >
+        Already have an account?
+        <a
+          href="{% url 'login' %}"
+          class="hover:text-gray-500 focus:text-gray-500 focus:outline-none focus:underline hover:underline text-sm font-medium leading-none text-primary cursor-pointer"
+        >
+          Sign in here</a
+        >
+      </p>
+      <a
+        aria-label="Continue with google"
+        href="{% provider_login_url 'google' %}"
+        class="focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-700 py-3.5 px-4 border rounded-lg border-gray-700 flex items-center justify-center w-full mt-10"
+      >
+        <img
+          src="https://tuk-cdn.s3.amazonaws.com/can-uploader/sign_in-svg2.svg"
+          alt="google"
+        />
+        <p class="text-base font-medium ml-4 text-gray-900">
+          Continue with Google
+        </p>
+      </a>
+
+      <div class="w-full flex items-center justify-between py-5">
+        <hr class="w-full bg-gray-400" />
+        <p class="text-base font-medium leading-4 px-2.5 text-gray-400">OR</p>
+        <hr class="w-full bg-gray-400" />
+      </div>
+      <form action="" method="post">
+        {% csrf_token %}
+        <div>
+          <label
+            id="email"
+            class="text-sm font-medium leading-none text-gray-800"
+          >
+            Email
+          </label>
+          <input
+            aria-labelledby="email"
+            name="email"
+            type="email"
+            class="bg-gray-100 border rounded text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
+          />
+        </div>
+        <div class="mt-6 w-full">
+          <label
+            for="pass"
+            class="text-sm font-medium leading-none text-gray-800"
+          >
+            Password
+          </label>
+          <div class="relative flex items-center justify-center">
+            <input
+              id="pass"
+              name="password"
+              type="password"
+              class="bg-gray-100 border rounded text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
+            />
+            <div class="absolute right-0 mt-2 mr-3 cursor-pointer">
+              <button
+                type="button"
+                class="flex items-center"
+                onclick="showPassword()"
+              >
+                <svg
+                  width="18"
+                  id="pwd-show"
+                  height="18"
+                  class="transition-all ease-in-out duration-200"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12.0003 3C17.3924 3 21.8784 6.87976 22.8189 12C21.8784 17.1202 17.3924 21 12.0003 21C6.60812 21 2.12215 17.1202 1.18164 12C2.12215 6.87976 6.60812 3 12.0003 3ZM12.0003 19C16.2359 19 19.8603 16.052 20.7777 12C19.8603 7.94803 16.2359 5 12.0003 5C7.7646 5 4.14022 7.94803 3.22278 12C4.14022 16.052 7.7646 19 12.0003 19ZM12.0003 16.5C9.51498 16.5 7.50026 14.4853 7.50026 12C7.50026 9.51472 9.51498 7.5 12.0003 7.5C14.4855 7.5 16.5003 9.51472 16.5003 12C16.5003 14.4853 14.4855 16.5 12.0003 16.5ZM12.0003 14.5C13.381 14.5 14.5003 13.3807 14.5003 12C14.5003 10.6193 13.381 9.5 12.0003 9.5C10.6196 9.5 9.50026 10.6193 9.50026 12C9.50026 13.3807 10.6196 14.5 12.0003 14.5Z"
+                  ></path>
+                </svg>
+              </button>
+              <button
+                type="button"
+                class="flex items-center"
+                onclick="hidePassword()"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  id="pwd-hide"
+                  class="hidden transition-all ease-in-out duration-200"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M17.8827 19.2968C16.1814 20.3755 14.1638 21.0002 12.0003 21.0002C6.60812 21.0002 2.12215 17.1204 1.18164 12.0002C1.61832 9.62282 2.81932 7.5129 4.52047 5.93457L1.39366 2.80777L2.80788 1.39355L22.6069 21.1925L21.1927 22.6068L17.8827 19.2968ZM5.9356 7.3497C4.60673 8.56015 3.6378 10.1672 3.22278 12.0002C4.14022 16.0521 7.7646 19.0002 12.0003 19.0002C13.5997 19.0002 15.112 18.5798 16.4243 17.8384L14.396 15.8101C13.7023 16.2472 12.8808 16.5002 12.0003 16.5002C9.51498 16.5002 7.50026 14.4854 7.50026 12.0002C7.50026 11.1196 7.75317 10.2981 8.19031 9.60442L5.9356 7.3497ZM12.9139 14.328L9.67246 11.0866C9.5613 11.3696 9.50026 11.6777 9.50026 12.0002C9.50026 13.3809 10.6196 14.5002 12.0003 14.5002C12.3227 14.5002 12.6309 14.4391 12.9139 14.328ZM20.8068 16.5925L19.376 15.1617C20.0319 14.2268 20.5154 13.1586 20.7777 12.0002C19.8603 7.94818 16.2359 5.00016 12.0003 5.00016C11.1544 5.00016 10.3329 5.11773 9.55249 5.33818L7.97446 3.76015C9.22127 3.26959 10.5793 3.00016 12.0003 3.00016C17.3924 3.00016 21.8784 6.87992 22.8189 12.0002C22.5067 13.6998 21.8038 15.2628 20.8068 16.5925ZM11.7229 7.50857C11.8146 7.50299 11.9071 7.50016 12.0003 7.50016C14.4855 7.50016 16.5003 9.51488 16.5003 12.0002C16.5003 12.0933 16.4974 12.1858 16.4919 12.2775L11.7229 7.50857Z"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="mt-6 w-full">
+          <label
+            for="confirm-pass"
+            class="text-sm font-medium leading-none text-gray-800"
+          >
+            Confirm Password
+          </label>
+          <div class="relative flex items-center justify-center">
+            <input
+              id="confirm-pass"
+              type="password"
+              name="confirm-password"
+              class="bg-gray-100 border rounded text-xs font-medium leading-none text-gray-800 py-3 w-full pl-3 mt-2"
+            />
+          </div>
+        </div>
+        <div class="mt-8">
+          <button
+            type="submit"
+            class="text-sm font-semibold leading-none text-white focus:outline-none bg-primary border rounded-md hover:bg-secondary py-4 w-full"
+          >
+            Create my account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const passwordInput = document.getElementById("pass");
+  const confirmPasswordInput = document.getElementById("confirm-pass");
+  const pwdShowIcon = document.getElementById("pwd-show");
+  const pwdHideIcon = document.getElementById("pwd-hide");
+  function showPassword() {
+    passwordInput.type = "text";
+    confirmPasswordInput.type = "text";
+    pwdShowIcon.classList.add("hidden");
+    pwdHideIcon.classList.remove("hidden");
+  }
+  function hidePassword() {
+    passwordInput.type = "password";
+    confirmPasswordInput.type = "password";
+    pwdShowIcon.classList.remove("hidden");
+    pwdHideIcon.classList.add("hidden");
+  }
+</script>
+{% endblock content %}

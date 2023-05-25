@@ -1,0 +1,54 @@
+{% extends '../layout/base.html' %} {% block content %}
+<section>
+  <div class="mx-auto max-w-screen-2xl">
+    <h1 class="text-center font-bold text-3xl">Checkout</h1>
+    <div class="bg-white py-12 md:py-24">
+      <div class="mx-auto max-w-lg px-4 lg:px-8">
+        <form class="gap-4" method="post" action="">
+          {% csrf_token %}
+          <div class="col-span-6">
+            <label for="phone" class="block text-xs font-medium text-gray-700">
+              Phone
+            </label>
+
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              required
+              class="mt-1 w-full border px-3 py-3 rounded-md border-gray-200 shadow-sm sm:text-sm"
+            />
+          </div>
+
+          <div class="w-full mt-4">
+            <label
+              for="address"
+              class="block text-xs font-medium text-gray-700"
+            >
+              Address
+            </label>
+
+            <textarea
+              type="text"
+              id="address"
+              name="address"
+              required
+              rows="8"
+              class="mt-1 w-full border rounded-md border-gray-200 shadow-sm sm:text-sm"
+            ></textarea>
+          </div>
+
+          <div class="col-span-6">
+            <button
+              type="submit"
+              class="block w-full rounded-md bg-black p-2.5 text-sm text-white transition hover:shadow-lg"
+            >
+              Pay Now
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

@@ -1,0 +1,161 @@
+<header
+  class="flex flex-wrap sm:justify-start sm:flex-nowrap z-50 w-full bg-white text-sm py-3 sm:py-0"
+>
+  <nav
+    class="relative max-w-7xl w-full mx-auto px-4 sm:flex sm:items-center sm:justify-between sm:px-6 lg:px-8"
+    aria-label="Global"
+  >
+    <div class="flex items-center justify-between">
+      <a
+        class="flex items-center text-xl font-semibold"
+        href="{% url 'shop' %}"
+        aria-label="Brand"
+      >
+        <img
+          src="https://res.cloudinary.com/rohanphulkar/image/upload/v1684910466/sciotics/logo_uijfnz.png"
+          width="28"
+          height="28"
+        />
+        <span
+          class="ml-2 text-2xl font-bold tracking-wide text-gray-800 uppercase"
+          >Sciotics</span
+        >
+      </a>
+      <div class="sm:hidden">
+        <button
+          type="button"
+          class="hs-collapse-toggle p-2 inline-flex justify-center items-center gap-2 rounded-md border font-medium bg-white text-gray-700 shadow-sm align-middle hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-600 transition-all text-sm"
+          data-hs-collapse="#navbar-collapse-with-animation"
+          aria-controls="navbar-collapse-with-animation"
+          aria-label="Toggle navigation"
+        >
+          <svg
+            class="hs-collapse-open:hidden w-4 h-4"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"
+            />
+          </svg>
+          <svg
+            class="hs-collapse-open:block hidden w-4 h-4"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div
+      id="navbar-collapse-with-animation"
+      class="hs-collapse hidden overflow-hidden transition-all duration-300 basis-full grow sm:block"
+    >
+      <div
+        class="flex flex-col gap-y-4 gap-x-0 mt-5 sm:flex-row sm:items-center sm:justify-end sm:gap-y-0 sm:gap-x-7 sm:mt-0 sm:pl-7"
+      >
+        <a
+          class="font-semibold text-gray-500 hover:text-gray-400 sm:py-6"
+          href="{% url 'shop' %}"
+          aria-current="page"
+          >Shop</a
+        >
+        <a
+          class="font-semibold text-gray-500 hover:text-gray-400 sm:py-6"
+          href="{% url 'cart' %}"
+          aria-current="page"
+          >Cart</a
+        >
+        {% if user.is_authenticated %}
+        <div
+          class="hs-dropdown relative inline-flex"
+          data-hs-dropdown-placement="bottom-right"
+        >
+          <button
+            id="hs-dropdown-with-header"
+            type="button"
+            class="hs-dropdown-toggle inline-flex flex-shrink-0 justify-center items-center gap-2 h-[2.375rem] w-[2.375rem] rounded-full font-medium bg-gray-200 text-gray-700 align-middle hover:bg-gray-300 focus:outline-none transition-all text-sm"
+          >
+            <p class="text-lg">{{request.user.email|slice:1|title}}</p>
+          </button>
+
+          <div
+            class="hs-dropdown-menu transition-[opacity,margin] duration hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[15rem] z-10 bg-white shadow-md rounded-lg p-2"
+            aria-labelledby="hs-dropdown-with-header"
+          >
+            <div class="py-3 px-5 -m-2 bg-gray-100 rounded-t-lg">
+              <p class="text-sm text-gray-500">Signed in as</p>
+              <p class="font-medium text-gray-900">{{request.user.email}}</p>
+            </div>
+            <div class="mt-2 py-2 first:pt-0 last:pb-0">
+              <a
+                class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                href="{% url 'dashboard' %}"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M13 21V11H21V21H13ZM3 13V3H11V13H3ZM9 11V5H5V11H9ZM3 21V15H11V21H3ZM5 19H9V17H5V19ZM15 19H19V13H15V19ZM13 3H21V9H13V3ZM15 5V7H19V5H15Z"
+                  ></path>
+                </svg>
+                Dashboard
+              </a>
+            </div>
+            <div class="py-2 first:pt-0 last:pb-0">
+              <a
+                class="flex items-center gap-x-3.5 py-2 px-3 rounded-md text-sm text-gray-800 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500"
+                href="{% url 'logout' %}"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M5 11H13V13H5V16L0 12L5 8V11ZM3.99927 18H6.70835C8.11862 19.2447 9.97111 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C9.97111 4 8.11862 4.75527 6.70835 6H3.99927C5.82368 3.57111 8.72836 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C8.72836 22 5.82368 20.4289 3.99927 18Z"
+                  ></path>
+                </svg>
+                Logout
+              </a>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <a
+          class="flex items-center gap-x-2 font-semibold text-primary hover:bg-primary hover:text-white sm:my-6 px-4 py-2 rounded-md border border-primary"
+          href="{% url 'login' %}"
+        >
+          <svg
+            class="w-4 h-4"
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"
+            />
+          </svg>
+          Log in
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+</header>

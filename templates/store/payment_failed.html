@@ -1,0 +1,42 @@
+{% extends "../layout/base.html" %} {% load static %} {%block content %}
+<section class="text-gray-600 body-font">
+  <div class="container mx-auto flex px-5 py-24 items-center justify-center">
+    <div>
+      <lottie-player
+        src="{% static 'lottie/payment_failed.json' %}"
+        background="transparent"
+        speed="1"
+        style="width: 360px; height: 360px"
+        autoPlay="true"
+      ></lottie-player>
+    </div>
+    <div class="text-center transition-all ease-in-out duration-1000">
+      <h1 class="sm:text-4xl text-3xl mb-4 font-bold text-[#FF4E4E]">
+        Payment Failed
+      </h1>
+      <p class="mb-8 leading-relaxed">Redirecting to dashboard ...</p>
+      <div class="flex justify-center">
+        <a href="{% url 'shop' %}">
+          <button
+            class="inline-flex text-white bg-gray-900 border-0 py-2 px-6 focus:outline-none hover:bg-gray-800 rounded-lg text-lg"
+          >
+            Go home
+          </button>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+  function redirectToHome() {
+    window.location.href = window.location.origin + "/dashboard/";
+  }
+  function showMessage() {
+    setTimeout(() => {
+      redirectToHome();
+    }, 5000);
+  }
+  showMessage();
+</script>
+
+{% endblock content %}

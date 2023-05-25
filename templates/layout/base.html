@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="shortcut icon"
+      href="https://res.cloudinary.com/rohanphulkar/image/upload/v1684910466/sciotics/logo_uijfnz.png"
+      type="image/png"
+    />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <title>Sciotics</title>
+  </head>
+  <body>
+    {% include './navbar.html' %} {% block content %} {% endblock content %} {% include './footer.html' %}
+    <script
+      defer
+      type="module"
+      src="https://res.cloudinary.com/rohanphulkar/raw/upload/v1673963494/synfert/preline_norz6c.js"
+    ></script>
+
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  </body>
+</html>
