@@ -1,8 +1,9 @@
 from django.shortcuts import render,redirect
-from .models import Category,Product,Order,Review,Wishlist,Cart,CartItem
+from .models import Category,Product,Order,Review,Wishlist,Cart,CartItem,ProductImage
 from django.shortcuts import get_object_or_404
-import stripe
+import stripe,razorpay
 from decouple import config
+from django.db.models import Q,Avg
 stripe.api_key=config("STRIPE_API_KEY")
 
 def shop(request):
@@ -15,7 +16,16 @@ def shop(request):
 
 def product(request,slug):
     product = get_object_or_404(Product,slug=slug)
-    return render(request, 'store/product.html',{'product':product})
+    in_wishlist = Wishlist.objects.filter(Q(product=product)).exists()
+    try:
+        review = Review.objects.filter(product=product)
+        rating = review.aggregate(Avg('rating'))['rating__avg']
+    except:
+        review=None
+        rating=None
+    related_products = Product.objects.exclude(id=product.id)
+    product_images = ProductImage.objects.filter(product=product)
+    return render(request, 'store/product.html',{'product':product,'in_wishlist':in_wishlist,'review':review,'related_products':related_products,'product_images':product_images,'rating':rating})
 
 def cart(request):
     if request.user.is_authenticated:
@@ -29,20 +39,23 @@ def cart(request):
     return redirect("shop")
 
 def add_to_cart(request,id):
-    try:
-        cart = Cart.objects.get(user=request.user)
-    except:
-        cart = Cart.objects.create(user=request.user)
-    product = Product.objects.get(pk=id)
-    
-    cart_item = CartItem.objects.filter(cart=cart,product=product)
-    if cart_item:
-        cart_item = cart_item.first()
-        cart_item.quantity += 1
-        cart_item.save()
+    if request.user.is_authenticated:
+        try:
+            cart = Cart.objects.get(user=request.user)
+        except:
+            cart = Cart.objects.create(user=request.user)
+        product = Product.objects.get(pk=id)
+        
+        cart_item = CartItem.objects.filter(cart=cart,product=product)
+        if cart_item:
+            cart_item = cart_item.first()
+            cart_item.quantity += 1
+            cart_item.save()
+            return redirect("cart")
+        cart_item = CartItem.objects.create(cart=cart,product=product)
         return redirect("cart")
-    cart_item = CartItem.objects.create(cart=cart,product=product)
-    return redirect("cart")
+    else:
+        return redirect("login")
 
 def remove_from_cart(request,id):
     cart = Cart.objects.get(user=request.user)
@@ -75,15 +88,22 @@ def checkout(request):
         cart_items = CartItem.objects.filter(cart=cart)
         if not cart_items:
             return redirect("cart")
+        total_amount = sum(item.product.price for item in CartItem.objects.filter(cart=cart))
+        products = [item.product.id for item in CartItem.objects.filter(cart=cart)]
         if request.method == "POST":
             domain_name = request.headers['Origin']
-            shipping_address = request.POST.get('address')
+            name = request.POST.get('name')
+            address = request.POST.get('address')
+            city = request.POST.get('city')
+            state = request.POST.get('state')
+            pin = request.POST.get('pin')
             phone = request.POST.get('phone')
-            total_amount = sum(item.product.price for item in CartItem.objects.filter(cart=cart))
-            products = [item.product.id for item in CartItem.objects.filter(cart=cart)]
-            order = Order.objects.create(customer=user,total_amount=total_amount,shipping_address=shipping_address,phone=phone)
+            payment_method = request.POST.get('pay-method')
+            order = Order.objects.create(customer=user,total_amount=total_amount,name=name,address=address,city=city,state=state,pincode=pin,phone=phone,payment_method=payment_method)
             order.products.add(*products)
-            checkout_session = stripe.checkout.Session.create(
+            order.save()
+            if payment_method == "stripe":
+                checkout_session = stripe.checkout.Session.create(
                     line_items=[
                             {
                         'price_data': {
@@ -100,21 +120,33 @@ def checkout(request):
                     success_url=domain_name+f"/payment-success/{str(order.order_id)}",
                     cancel_url=domain_name+f"/payment-failed/{str(order.order_id)}"
                 )
-            order.payment_id=checkout_session.id
-            order.save()
-            cart_items.delete()
-            return redirect(checkout_session.url)
-        return render(request,'store/checkout.html')
+                order.payment_id=checkout_session.id
+                order.save()
+                cart_items.delete()
+                return redirect(checkout_session.url)
+            elif payment_method == "razorpay":
+                client = razorpay.Client(auth=(config("RZP_KEY"), config("RZP_SECRET")))
+                payment = client.order.create({'amount':int(total_amount*100), 'currency':'INR','payment_capture':'1'})
+                order.payment_id = payment['id']
+                order.save()
+                cart_items.delete()
+                return render(request,'store/checkout.html',{'order':order,'payment':payment,'key':config('RZP_KEY'),'total_amount':total_amount})
+        return render(request,'store/checkout.html',{'total_amount':total_amount})
     return redirect("login")
 
 def payment_success(request,id):
     order = get_object_or_404(Order,order_id=id)
     if order.is_paid:
         return redirect("shop")
-    charges = stripe.checkout.Session.retrieve(order.payment_id,)
-    if charges.payment_status !="paid":
-        return redirect("failed")
+    if order.payment_id =="stripe":
+        charges = stripe.checkout.Session.retrieve(order.payment_id,)
+        if charges.payment_status !="paid":
+            return redirect("failed")
+        order.is_paid = True
+        order.status = "success"
+        order.save()
     order.is_paid = True
+    order.status = "success"
     order.save()
     return render(request,'store/payment_success.html')
 
@@ -122,8 +154,24 @@ def payment_failed(request,id):
     order = get_object_or_404(Order, order_id=id)
     if order.is_paid:
         return redirect("shop")
+    order.status = "failed"
+    order.save()
     return render(request,'store/payment_failed.html')
 
 def user_dashboard(request):
     orders = Order.objects.filter(customer = request.user)
     return render(request,'store/dashboard.html',{'orders': orders})
+
+def add_to_wishlist(request,id):
+    referer = request.META.get('HTTP_REFERER','home')
+    try:
+        wishlist = Wishlist.objects.get(user=request.user)
+    except:
+        wishlist = Wishlist.objects.create(user=request.user)
+    product_exists = Wishlist.objects.filter(Q(product__id=id)).exists()
+    product = Product.objects.get(pk=id)
+    if product_exists:
+        wishlist.product.remove(product)
+    else:
+        wishlist.product.add(product)
+    return redirect(referer)

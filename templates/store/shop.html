@@ -4,10 +4,7 @@
   <!-- Title -->
   <div class="max-w-2xl mx-auto text-center mb-10 lg:mb-14">
     <h2 class="text-2xl font-bold md:text-4xl md:leading-tight">Shop</h2>
-    <p class="mt-1 text-gray-600">
-      See how game-changing companies are making the most of every engagement
-      with Preline.
-    </p>
+    <p class="mt-1 text-gray-600">Original Hai Kyoki Origin Se Hai</p>
   </div>
   <!-- End Title -->
 
@@ -17,27 +14,23 @@
   >
     <!-- Card -->
     {% for product in products %}
-    <div
-      class="w-72 bg-white border rounded-xl duration-500 hover:scale-105 hover:shadow-xl"
+
+    <a
+      href="{% url 'product' product.slug %}"
+      class="group relative block overflow-hidden border-2 border-amber-200 rounded-md p-3"
     >
-      <a href="{% url 'product' product.slug %}">
-        <img
-          src="{{product.image.url}}"
-          alt="Product"
-          class="h-80 w-72 object-cover rounded-t-xl"
-        />
-        <div class="px-4 py-3 w-72">
-          <p class="text-lg font-bold text-black truncate block capitalize">
-            {{product.name}}
-          </p>
-          <div class="flex items-center">
-            <p class="text-lg font-semibold text-black cursor-auto my-3">
-              &#8377;{{product.price}}
-            </p>
-          </div>
-        </div>
-      </a>
-    </div>
+      <img
+        src="{{product.image.url}}"
+        alt="{{product.name}}"
+        class="h-64 w-full rounded-md object-cover transition duration-500 sm:h-72"
+      />
+
+      <div class="relative bg-white p-4">
+        <h3 class="text-lg font-semibold text-gray-900">{{product.name}}</h3>
+
+        <p class="mt-1.5 text-gray-700 font-medium">&#8377;{{product.price}}</p>
+      </div>
+    </a>
     {% endfor %}
     <!-- Card End -->
   </div>

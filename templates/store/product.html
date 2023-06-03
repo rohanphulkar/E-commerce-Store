@@ -1,38 +1,41 @@
 {% extends '../layout/base.html' %} {% block content %}
+
 <div class="bg-white py-6 sm:py-8 lg:py-12">
-  <div class="mx-auto max-w-screen-xl px-4 md:px-8">
+  <div class="mx-auto max-w-7xl px-4 md:px-8">
     <div class="grid gap-8 md:grid-cols-2">
       <!-- images - start -->
-      <div class="grid gap-4 lg:grid-cols-5">
-        <div
-          class="relative overflow-hidden rounded-lg bg-gray-100 lg:col-span-4"
-        >
+      <div class="space-y-4">
+        <div class="relative overflow-hidden rounded-lg bg-gray-100">
           <img
             src="{{product.image.url}}"
             loading="lazy"
             alt="{{product.name}}"
-            class="h-full w-full object-fit object-center"
+            id="main-image"
+            class="h-[35rem] w-full object-fill"
           />
+        </div>
 
-          <button
-            type="button"
-            class="absolute right-4 top-4 inline-block rounded-lg border bg-white px-3.5 py-3 text-center text-sm font-semibold text-gray-500 outline-none ring-indigo-300 transition duration-100 hover:bg-gray-100 active:text-gray-700 md:text-base"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-6 w-6"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-              />
-            </svg>
-          </button>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="overflow-hidden bg-gray-100">
+            <img
+              onclick="setImage(event)"
+              src="{{product.image.url}}"
+              loading="lazy"
+              alt="{{product.name}}"
+              class="h-48 w-full object-fill rounded-lg product-images border-4 border-amber-300"
+            />
+          </div>
+          {% for item in product_images %}
+          <div class="overflow-hidden rounded-lg bg-gray-100">
+            <img
+              onclick="setImage(event)"
+              src="{{item.image.url}}"
+              loading="lazy"
+              alt="{{product.name}}"
+              class="h-48 w-full object-cover product-images"
+            />
+          </div>
+          {% endfor %}
         </div>
       </div>
       <!-- images - end -->
@@ -42,17 +45,18 @@
         <!-- name - start -->
         <div class="mb-2 md:mb-3">
           <h2 class="text-2xl font-bold text-gray-800 lg:text-3xl">
-            {{product.name|title}}
+            {{product.name}}
           </h2>
         </div>
         <!-- name - end -->
 
+        {% if review %}
         <!-- rating - start -->
         <div class="mb-6 flex items-center gap-3 md:mb-5">
           <div
-            class="flex h-7 items-center gap-1 rounded-full bg-primary px-2 text-white"
+            class="flex h-7 items-center gap-1 rounded-full bg-amber-600 px-2 text-white"
           >
-            <span class="text-sm">4.2</span>
+            <span class="text-sm">{{rating}}</span>
 
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -67,14 +71,11 @@
           </div>
         </div>
         <!-- rating - end -->
-
-        <div class="prose prose-base mb-6 md:mb-5">
-          <p class="text-lg">{{product.description}}</p>
-        </div>
+        {% endif %}
 
         <!-- price - start -->
         <div class="mb-4">
-          <div class="flex items-end gap-2 mb-3">
+          <div class="flex items-end gap-2">
             <span class="text-xl font-bold text-gray-800 md:text-2xl"
               >&#8377;{{product.price}}</span
             >
@@ -102,7 +103,7 @@
             />
           </svg>
 
-          <span class="text-sm">2-4 day shipping</span>
+          <span class="text-sm">5-7 days shipping</span>
         </div>
         <!-- shipping notice - end -->
 
@@ -110,14 +111,85 @@
         <div class="flex gap-2.5">
           <a
             href="{% url 'add_to_cart' product.id %}"
-            class="inline-block rounded-lg bg-primary px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-secondary factive:bg-indigo-700 sm:flex-none md:text-base"
+            class="inline-block flex-1 rounded-lg bg-amber-500 px-8 py-3 text-center text-sm font-semibold text-white outline-none ring-indigo-300 transition duration-100 hover:bg-amber-600 focus-visible:ring sm:flex-none md:text-base"
             >Add to cart</a
           >
+          {% if user.is_authenticated %}
+          <a
+            href="{% url 'add_to_wishlist' product.id %}"
+            class="inline-block rounded-lg bg-gray-200 px-4 py-3 text-center text-sm font-semibold {% if in_wishlist %} text-red-500 {% else %} text-gray-500 {% endif %} outline-none ring-indigo-300 transition duration-100 hover:bg-gray-300 focus-visible:ring active:text-gray-700 md:text-base"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+          </a>
+          {% endif %}
         </div>
         <!-- buttons - end -->
+
+        <!-- description - start -->
+        <div class="mt-10 md:mt-10">
+          <div class="mb-3 text-lg font-semibold text-gray-800">
+            Description
+          </div>
+
+          <p class="text-gray-700 prose prose-sm">
+            {{product.description|safe}}
+          </p>
+        </div>
+        <!-- description - end -->
       </div>
       <!-- content - end -->
     </div>
+    {% if related_products %}
+    <h1 class="mt-20 text-2xl font-semibold">Related Products</h1>
+    <div class="grid gap-4 grid-cols-2 sm:grid-cols-3 mt-4">
+      <!-- product - start -->
+      {% for item in related_products %}
+      <a
+        href="{% url 'product' item.slug %}"
+        class="group relative block overflow-hidden border-2 border-amber-200 rounded-md p-3"
+      >
+        <img
+          src="{{item.image.url}}"
+          alt="{{item.name}}"
+          class="h-64 w-full rounded-md object-cover transition duration-500 sm:h-72"
+        />
+
+        <div class="relative bg-white p-4">
+          <h3 class="text-lg font-semibold text-gray-900">{{item.name}}</h3>
+
+          <p class="mt-1.5 text-gray-700 font-medium">&#8377;{{item.price}}</p>
+        </div>
+      </a>
+      {% endfor %}
+      <!-- product - end -->
+    </div>
+    {% endif %}
   </div>
 </div>
+
+<script>
+  var mainImage = document.getElementById("main-image");
+  var productImages = document.getElementsByClassName("product-images");
+  console.log(productImages);
+  function setImage(e) {
+    mainImage.src = e.target.src;
+    Array.from(productImages).forEach(function (element) {
+      element.classList.remove("border-4", "border-amber-300");
+    });
+    e.target.classList.add("border-4", "border-amber-300");
+  }
+</script>
 {% endblock content %}

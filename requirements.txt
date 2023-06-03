@@ -1,8 +1,10 @@
 Django
 django-allauth
+django-redis
 gunicorn
 mysqlclient
 Pillow
 python-decouple
+razorpay
 stripe
 uuid

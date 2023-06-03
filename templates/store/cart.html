@@ -43,7 +43,7 @@
               </a>
             </div>
             <div class="flex items-center space-x-4">
-              <p class="text-sm">&#8377;{{product.product.price}}</p>
+              <p class="text-sm">&#8377;{{product.subtotal}}</p>
               <a href="{% url 'remove_from_cart' product.product.id %}">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -86,7 +86,7 @@
       </div>
       <a href="{% url 'checkout' %}">
         <button
-          class="mt-6 w-full rounded-md bg-primary py-2 font-medium text-white hover:bg-secondary"
+          class="mt-6 w-full rounded-md bg-amber-500 py-2 font-medium text-white hover:bg-amber-600"
         >
           Check out
         </button>
