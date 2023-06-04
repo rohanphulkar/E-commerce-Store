@@ -1,9 +1,11 @@
 from django.shortcuts import render,redirect
-from .models import Category,Product,Order,Review,Wishlist,Cart,CartItem,ProductImage
+from .models import Product,Order,Review,Wishlist,Cart,CartItem,ProductImage
 from django.shortcuts import get_object_or_404
 import stripe,razorpay
 from decouple import config
 from django.db.models import Q,Avg
+from .helper import sendOrderEmail
+
 stripe.api_key=config("STRIPE_API_KEY")
 
 def shop(request):
@@ -88,7 +90,7 @@ def checkout(request):
         cart_items = CartItem.objects.filter(cart=cart)
         if not cart_items:
             return redirect("cart")
-        total_amount = sum(item.product.price for item in CartItem.objects.filter(cart=cart))
+        total_amount = sum(item.subtotal for item in CartItem.objects.filter(cart=cart))
         products = [item.product.id for item in CartItem.objects.filter(cart=cart)]
         if request.method == "POST":
             domain_name = request.headers['Origin']
@@ -122,41 +124,61 @@ def checkout(request):
                 )
                 order.payment_id=checkout_session.id
                 order.save()
-                cart_items.delete()
                 return redirect(checkout_session.url)
             elif payment_method == "razorpay":
                 client = razorpay.Client(auth=(config("RZP_KEY"), config("RZP_SECRET")))
                 payment = client.order.create({'amount':int(total_amount*100), 'currency':'INR','payment_capture':'1'})
                 order.payment_id = payment['id']
                 order.save()
-                cart_items.delete()
                 return render(request,'store/checkout.html',{'order':order,'payment':payment,'key':config('RZP_KEY'),'total_amount':total_amount})
         return render(request,'store/checkout.html',{'total_amount':total_amount})
     return redirect("login")
 
 def payment_success(request,id):
-    order = get_object_or_404(Order,order_id=id)
-    if order.is_paid:
-        return redirect("shop")
-    if order.payment_id =="stripe":
-        charges = stripe.checkout.Session.retrieve(order.payment_id,)
-        if charges.payment_status !="paid":
-            return redirect("failed")
+    if request.user.is_authenticated:
+        user = request.user
+        cart = Cart.objects.get(user=user)
+        cart_items = CartItem.objects.filter(cart=cart)
+        order = get_object_or_404(Order,order_id=id)
+        if order.is_paid:
+            return redirect("shop")
+        if order.payment_id =="stripe":
+            charges = stripe.checkout.Session.retrieve(order.payment_id,)
+            if charges.payment_status !="paid":
+                return redirect("failed")
+            order.is_paid = True
+            order.status = "success"
+            order.save()
         order.is_paid = True
         order.status = "success"
         order.save()
-    order.is_paid = True
-    order.status = "success"
-    order.save()
-    return render(request,'store/payment_success.html')
+        context = {
+            'cart_items': cart_items,
+            'id': str(order.order_id),
+            'email':order.customer.email,
+            'address':f"{order.address}, {order.city}, {order.state}, {order.pincode}",
+            'method': str(order.payment_method).upper(),
+            'total':sum(item.subtotal for item in cart_items),
+            'date':order.created_at
+        }
+        sendOrderEmail(context)
+        cart_items.delete()
+        return render(request,'store/payment_success.html')
+    return redirect("login")
 
 def payment_failed(request,id):
-    order = get_object_or_404(Order, order_id=id)
-    if order.is_paid:
-        return redirect("shop")
-    order.status = "failed"
-    order.save()
-    return render(request,'store/payment_failed.html')
+    if request.user.is_authenticated:
+        user = request.user
+        cart = Cart.objects.get(user=user)
+        cart_items = CartItem.objects.filter(cart=cart)
+        order = get_object_or_404(Order, order_id=id)
+        if order.is_paid:
+            return redirect("shop")
+        order.status = "failed"
+        order.save()
+        cart_items.delete()
+        return render(request,'store/payment_failed.html')
+    return redirect("login")
 
 def user_dashboard(request):
     orders = Order.objects.filter(customer = request.user)

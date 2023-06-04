@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+from shortuuid.django_fields import ShortUUIDField
 from accounts.models import User
 from django.template.defaultfilters import slugify
 from django.core.validators import MaxValueValidator,MinValueValidator
@@ -36,7 +37,12 @@ class ProductImage(models.Model):
         return self.product.name
 
 class Order(models.Model):
-    order_id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
+    order_id = ShortUUIDField(
+        length=8,
+        max_length=40,
+        alphabet="abcdefg1234",
+        primary_key=True,
+    )
     customer = models.ForeignKey(User,on_delete=models.CASCADE)
     products = models.ManyToManyField(Product,related_name="order_products")
     total_amount = models.DecimalField(max_digits=6,decimal_places=2)

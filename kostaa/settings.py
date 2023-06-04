@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'cloudinary_storage',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -151,8 +153,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = os.path.join(BASE_DIR,'assets')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_URL = '/kostaa/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'files')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static'),
 ]
@@ -189,3 +191,11 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config("CLOUDINARY_CLOUD_NAME"),
+    'API_KEY': config("CLOUDINARY_API_KEY"),
+    'API_SECRET': config("CLOUDINARY_API_SECRET")
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
