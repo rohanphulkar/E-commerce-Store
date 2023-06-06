@@ -8,7 +8,6 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import login, authenticate,logout
 from django.contrib.auth.decorators import login_required
 
-
 def register(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -58,3 +57,51 @@ def logout_view(request):
     logout(request)
     return render(request,'accounts/login.html')
 
+def forgot_password(request):
+    if request.method=="POST":
+        email = request.POST.get("email")
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "User not found")
+            return render(request,"accounts/forgot_password.html")
+        token = str(uuid.uuid4())
+        user.pwd_reset_token = token
+        user.save()
+        domain_name = request.headers['Origin']
+        relative_path = reverse("reset_password",args=[token])
+        url = f"{domain_name}{relative_path}"
+        message = send_password_reset_email(url,user.email)
+        if message:
+            messages.success(request,"A verification code has been sent to your phone.")
+        else:
+            messages.error(request, "Something went wrong")
+        return redirect("reset_password",user.id)
+    
+    return render(request,"accounts/forgot_password.html")
+
+# Reset password view
+def reset_password(request,token):
+    try:
+        user = User.objects.get(pwd_reset_token=token)
+    except User.DoesNotExist:
+        return redirect("forgot_password")
+    
+    if request.method=="POST":
+        new_password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm-password")
+
+        if user.pwd_reset_token != token:
+            messages.error(request, "Verification code is incorrect.")
+            return redirect("reset_password",token)
+        if new_password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect("reset_password",token)
+        
+        user.set_password(new_password)
+        user.pwd_reset_token = ""
+        user.save()
+        messages.success(request,"Your password has been changed.")
+        return redirect("login")
+    
+    return render(request,"accounts/reset_password.html")

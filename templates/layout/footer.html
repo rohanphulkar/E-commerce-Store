@@ -1,3 +1,5 @@
+{% load static %}
+
 <div
   class="px-4 pt-16 mx-auto sm:max-w-xl md:max-w-full lg:max-w-screen-xl md:px-24 lg:px-8"
 >
@@ -9,15 +11,7 @@
         title="Company"
         class="inline-flex items-center"
       >
-        <img
-          src="https://res.cloudinary.com/rohanphulkar/image/upload/v1685433159/Kostaa/path248_tef4qs.png"
-          width="24"
-          height="24"
-        />
-        <span
-          class="ml-2 text-2xl font-bold tracking-wide text-gray-800 uppercase"
-          >Kostaa</span
-        >
+        <img src="{% static 'img/logo.svg' %}" width="84" />
       </a>
     </div>
     <div class="space-y-2 text-sm">

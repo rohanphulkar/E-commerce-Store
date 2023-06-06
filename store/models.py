@@ -13,17 +13,30 @@ class Category(models.Model):
 
 class Product(models.Model):
     id = models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
+    sno = models.CharField(max_length=255,blank=True,null=True,unique=True)
     name = models.CharField(max_length=255)
     image = models.ImageField(upload_to="store/products/")
     description = models.TextField()
     price = models.DecimalField(max_digits=8,decimal_places=2)
     category = models.ForeignKey(Category,on_delete=models.CASCADE)
+    length = models.DecimalField(max_digits=8,decimal_places=2,default=0)
+    weight = models.DecimalField(max_digits=8,decimal_places=2,default=0)
+    in_stock = models.IntegerField(default=0)
     slug = models.SlugField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self,*args, **kwargs):
         self.slug = slugify(self.name)
+        if not self.sno:
+            last_product = Product.objects.order_by('-id').first()
+            if last_product:
+                last_serial_number = last_product.sno
+                last_serial_number = last_serial_number[3:]  # Extract the numeric part
+                sno = int(last_serial_number) + 1
+            else:
+                sno = 1
+            self.sno = f'KST{str(sno).zfill(4)}'
         super().save(*args, **kwargs)
     
     def __str__(self):
@@ -40,7 +53,7 @@ class Order(models.Model):
     order_id = ShortUUIDField(
         length=8,
         max_length=40,
-        alphabet="abcdefg1234",
+        alphabet="0123456789",
         primary_key=True,
     )
     customer = models.ForeignKey(User,on_delete=models.CASCADE)
